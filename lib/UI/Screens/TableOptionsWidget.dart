@@ -136,6 +136,7 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
                         padding: const EdgeInsets.only(top: 4),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             if (table.sourceTable.isNotEmpty || table.joinedTable.isNotEmpty)
                               Tooltip(
@@ -146,13 +147,16 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
                                     'Joined with: ${table.joinedTable.map((jt) => jt.primaryJoin.table_name).join(', ')}',
                                 ].join('\n'),
                                 child: Container(
+                                  constraints: const BoxConstraints(maxWidth: 120),
+
+                                  // optionally limit width
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(
                                     color: tableState.backgroundColor.withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
+                                  child: Wrap(
+                                    alignment: WrapAlignment.center,
                                     children: [
                                       if (table.sourceTable.isNotEmpty)
                                         Icon(
@@ -168,7 +172,16 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
                                         ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${table.sourceTable.length + table.joinedTable.length}',
+                                        [
+                                          if (table.sourceTable.isNotEmpty)
+                                            table.sourceTable
+                                                .map((st) => st.secondaryTable.table_name)
+                                                .join(', '),
+                                          if (table.joinedTable.isNotEmpty)
+                                            table.joinedTable
+                                                .map((jt) => jt.primaryJoin.table_name)
+                                                .join(', '),
+                                        ].join('\n'),
                                         style: AppTheme.of(context).subtitle2.override(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -213,6 +226,7 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
   TableState _getTableState(TableData table, bool isCurrentTable, bool isJoinedTable) {
     final theme = AppTheme.of(context);
 
+    // Disable the current table
     if (isCurrentTable) {
       return TableState(
         enabled: false,
@@ -221,14 +235,19 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
       );
     }
 
-    if (isJoinedTable) {
-      return TableState(
-        enabled: _selectedAction == 'Join',
-        backgroundColor: theme.retroRedYellow.withOpacity(0.2),
-        textColor: theme.retroRedYellow,
-      );
+    // 🛑 Specifically handle Join case: disable tables that are already joined
+    if (_selectedAction == 'Join') {
+      final isAlreadyJoined = table.sourceTable.isNotEmpty || table.joinedTable.isNotEmpty;
+      if (isAlreadyJoined) {
+        return TableState(
+          enabled: false,
+          backgroundColor: theme.retroRedYellow.withOpacity(0.2),
+          textColor: theme.retroRedYellow,
+        );
+      }
     }
 
+    // Highlight selected tables
     if (_selectedTables.contains(table.id)) {
       return TableState(
         enabled: true,
@@ -237,6 +256,7 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
       );
     }
 
+    // Merge and Join rules when table is occupied
     if (table.occupied) {
       if (_selectedAction == 'Merge') {
         return TableState(
@@ -245,13 +265,20 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
           textColor: theme.retroLgBlackLgGrGrFont,
         );
       }
-      if (_selectedAction == 'Join' && table.sourceTable.isEmpty && table.joinedTable.isEmpty) {
-        return TableState(
-          enabled: true,
-          backgroundColor: theme.retroLgBlackLgGrGr,
-          textColor: theme.retroLgBlackLgGrGrFont,
-        );
+
+      if (_selectedAction == 'Join') {
+        // ✅ Allow only unjoined occupied tables
+        final isAlreadyJoined = table.sourceTable.isNotEmpty || table.joinedTable.isNotEmpty;
+        if (!isAlreadyJoined) {
+          return TableState(
+            enabled: true,
+            backgroundColor: theme.retroLgBlackLgGrGr,
+            textColor: theme.retroLgBlackLgGrGrFont,
+          );
+        }
       }
+
+      // default for occupied tables
       return TableState(
         enabled: false,
         backgroundColor: theme.retroRedYellow.withOpacity(0.2),
@@ -259,6 +286,7 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
       );
     }
 
+    // Default available table
     return TableState(
       enabled: true,
       backgroundColor: theme.retroLgBlackLgGrGr,

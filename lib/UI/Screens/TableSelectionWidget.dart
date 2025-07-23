@@ -230,18 +230,81 @@ class _TableSelectionWidgetState extends State<TableSelectionWidget> {
               : AppTheme.of(context).retroMintBlue,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Center(
-          child: Text(
-            table.table_name,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: table.occupied
-                  ? AppTheme.of(context).retroRedYellowFont
-                  : AppTheme.of(context).retroMintBlueFont,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Text(
+                table.table_name,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: table.occupied
+                      ? AppTheme.of(context).retroRedYellowFont
+                      : AppTheme.of(context).retroMintBlueFont,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
-          ),
+            if (table.sourceTable.isNotEmpty || table.joinedTable.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (table.sourceTable.isNotEmpty || table.joinedTable.isNotEmpty)
+                      Container(
+                        constraints: const BoxConstraints(maxWidth: 120), // optionally limit width
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.of(context).retroRedYellowFont.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          children: [
+                            if (table.sourceTable.isNotEmpty)
+                              Icon(
+                                Icons.anchor,
+                                size: 18,
+                                color: AppTheme.of(context).chineseBlack.withOpacity(0.8),
+                              ),
+                            if (table.joinedTable.isNotEmpty)
+                              Icon(
+                                Icons.link,
+                                size: 18,
+                                color: AppTheme.of(context).chineseBlack.withOpacity(0.8),
+                              ),
+                            const SizedBox(width: 4),
+                            Text(
+                              [
+                                if (table.sourceTable.isNotEmpty)
+                                  table.sourceTable
+                                      .map((st) => st.secondaryTable.table_name)
+                                      .join(', '),
+                                if (table.joinedTable.isNotEmpty)
+                                  table.joinedTable
+                                      .map((jt) => jt.primaryJoin.table_name)
+                                      .join(', '),
+                              ].join('\n'),
+                              style: AppTheme.of(context).subtitle2.override(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.of(context).chineseBlack.withOpacity(0.8),
+                                useGoogleFonts: GoogleFonts.asMap().containsKey(
+                                  AppTheme.of(context).subtitle2.fontFamily,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          ],
         ),
       ),
     );
