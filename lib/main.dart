@@ -12,6 +12,7 @@ import 'package:nepvent_waiter/Models/Table_Location.dart';
 import 'package:nepvent_waiter/Models/UserProfile.dart';
 import 'package:nepvent_waiter/UI/HomeWidget.dart';
 import 'package:nepvent_waiter/Utils/Constant.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart'; // Add this import
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   prefs = await SharedPreferences.getInstance();
-
+  appPackageInfo = await PackageInfo.fromPlatform();
   // Initialize services
   final notificationService = NotificationService();
   await notificationService.init();

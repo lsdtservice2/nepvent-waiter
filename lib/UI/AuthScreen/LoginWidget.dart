@@ -486,6 +486,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                                     ],
                                   ),
                                 ),
+                                SizedBox(height: 8),
                                 Padding(
                                   padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 0),
                                   child: Row(
@@ -495,10 +496,6 @@ class _LoginWidgetState extends State<LoginWidget> {
                                     children: [
                                       ButtonWidget(
                                         onPressed: () {
-                                          // sharedPrefs.then((prefs) {
-                                          //   prefs.setString(
-                                          //       'ipAddress', '');
-                                          //   prefs.setString('token', '');
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(builder: (context) => SetIPWidget()),
@@ -536,7 +533,10 @@ class _LoginWidgetState extends State<LoginWidget> {
                       ),
                     ),
                   ),
-                  Text('Nepvent Waiter v3.0.0', style: AppTheme.of(context).bodyText1),
+                  Text(
+                    'Nepvent Waiter v${appPackageInfo.version}',
+                    style: AppTheme.of(context).bodyText1,
+                  ),
                 ],
               ),
             ),

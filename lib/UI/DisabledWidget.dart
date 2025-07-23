@@ -5,6 +5,8 @@ import 'package:nepvent_waiter/UI/Design/AppTheme.dart';
 import 'package:nepvent_waiter/UI/Design/ButtonWidget.dart';
 import 'package:nepvent_waiter/UI/HomeWidget.dart';
 import 'package:nepvent_waiter/Utils/Constant.dart';
+import 'package:nepvent_waiter/Utils/config.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DisableWidget extends StatefulWidget {
   const DisableWidget({super.key});
@@ -89,7 +91,11 @@ class _DisableWidgetState extends State<DisableWidget> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('Please contact your supervisor.', textAlign: TextAlign.center, style: theme.bodyText2),
+                Text(
+                  'Please contact your supervisor.',
+                  textAlign: TextAlign.center,
+                  style: theme.bodyText2,
+                ),
                 const SizedBox(height: 40),
                 ButtonWidget(
                   onPressed: _logoutAndRetry,
@@ -105,8 +111,17 @@ class _DisableWidgetState extends State<DisableWidget> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                Text('Nepvent pro v3.0.0', style: theme.bodyText1),
-                Text('Nepvent Support: 9851255225', style: theme.bodyText2),
+                Text('Nepvent pro v${appPackageInfo.version}', style: theme.bodyText1),
+                GestureDetector(
+                  onTap: () async {
+                    final Uri phoneUri = Uri(scheme: 'tel', path: AppConfig.supportNumber);
+                    if (await canLaunchUrl(phoneUri)) {
+                      await launchUrl(phoneUri);
+                    }
+                  },
+                  child: Text("Call Support: ${AppConfig.supportNumber}", style: theme.bodyText2),
+                ),
+                // Text('Nepvent Support: ${AppConfig.supportNumber}', style: theme.bodyText2),
               ],
             ),
           ),
