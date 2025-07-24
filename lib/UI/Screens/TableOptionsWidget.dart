@@ -6,6 +6,7 @@ import 'package:nepvent_waiter/Models/TableData.dart';
 import 'package:nepvent_waiter/Object/ChipData.dart';
 import 'package:nepvent_waiter/Object/TableState.dart';
 import 'package:nepvent_waiter/UI/Design/AppTheme.dart';
+import 'package:nepvent_waiter/UI/Design/ButtonWidget.dart';
 import 'package:nepvent_waiter/UI/Design/CustomFloatingActionButton.dart';
 import 'package:nepvent_waiter/Utils/Constant.dart';
 import 'package:nepvent_waiter/Utils/Urls.dart';
@@ -172,16 +173,23 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
                                         ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        [
-                                          if (table.sourceTable.isNotEmpty)
-                                            table.sourceTable
-                                                .map((st) => st.secondaryTable.table_name)
-                                                .join(', '),
-                                          if (table.joinedTable.isNotEmpty)
-                                            table.joinedTable
-                                                .map((jt) => jt.primaryJoin.table_name)
-                                                .join(', '),
-                                        ].join('\n'),
+                                        () {
+                                          final sourceNames = table.sourceTable
+                                              .map((st) => st.secondaryTable.table_name)
+                                              .toSet();
+
+                                          final joinedNames = table.joinedTable
+                                              .map((jt) => jt.primaryJoin.table_name)
+                                              .where(
+                                                (name) => !sourceNames.contains(name),
+                                              ) // avoid duplicates
+                                              .toSet();
+
+                                          return [
+                                            if (sourceNames.isNotEmpty) sourceNames.join(', '),
+                                            if (joinedNames.isNotEmpty) joinedNames.join(', '),
+                                          ].join('\n');
+                                        }(),
                                         style: AppTheme.of(context).subtitle2.override(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -667,19 +675,14 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
                     SizedBox(
                       width: double.infinity,
                       height: 50,
-                      child: ElevatedButton(
+                      child: ButtonWidget(
+                        text: 'Confirm ${_selectedAction ?? ''}',
                         onPressed: _enableSubmit ? _confirmAction : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _enableSubmit
-                              ? theme.primaryColor
-                              : Colors.grey.shade300,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 0,
-                          shadowColor: Colors.transparent,
-                        ),
-                        child: Text(
-                          'Confirm ${_selectedAction ?? ''}',
-                          style: theme.subtitle2.override(
+                        isEnabled: _enableSubmit,
+                        showLoadingIndicator: true,
+                        // optional
+                        options: ButtonOptions(
+                          textStyle: theme.subtitle2.override(
                             color: _enableSubmit ? Colors.white : Colors.grey.shade600,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -687,6 +690,12 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
                               theme.subtitle2.fontFamily,
                             ),
                           ),
+                          elevation: 0,
+                          color: _enableSubmit ? theme.primaryColor : Colors.grey.shade300,
+                          disabledColor: Colors.grey.shade300,
+                          borderRadius: 12,
+                          borderSide: BorderSide.none,
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                         ),
                       ),
                     ),

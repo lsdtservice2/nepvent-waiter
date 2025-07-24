@@ -89,7 +89,7 @@ class SocketService {
   void _setupConnectionHandlers(String token) {
     socket.onConnect((_) {
       _isConnected = true;
-      log('Socket connected: ${socket.id}');
+      log('Socket connected::::::::::::::  ${socket.id}');
 
       // Emit initial connection events
       socket.emit('userConnected', {'socketId': socket.id, 'token': token});
@@ -102,9 +102,20 @@ class SocketService {
       socket.emit('checkOccupied');
     });
 
-    socket.onDisconnect((_) {
+    socket.onDisconnect((_) async {
       _isConnected = false;
-      log('Socket disconnected');
+      log(' ::::::::::::::  Socket disconnected :::::::::::::: ');
+      await _showAlertDialog(
+        title: 'Disconnected',
+        message: 'Your connection to the server was lost. Please check your internet or try again.',
+        buttonText: 'OK',
+        icon: Icons.wifi_off,
+        iconColor: Colors.redAccent,
+        buttonColor: Colors.redAccent,
+        onPressed: () {
+          Navigator.of(navigatorKey.currentContext!).pop(); // Close the dialog
+        },
+      );
     });
   }
 
@@ -543,11 +554,12 @@ class SocketService {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
-                  onPressed: () => Navigator.pushReplacement(
-                    navigatorKey.currentContext!,
-                    MaterialPageRoute(builder: (context) => const TableSelectionWidget()),
-                  ),
-
+                  onPressed: () =>
+                      // Navigator.pop(context),
+                      Navigator.pushReplacement(
+                        navigatorKey.currentContext!,
+                        MaterialPageRoute(builder: (context) => const TableSelectionWidget()),
+                      ),
                   child: Text(
                     'OK',
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(

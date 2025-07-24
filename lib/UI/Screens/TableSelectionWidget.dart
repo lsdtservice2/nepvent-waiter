@@ -279,16 +279,23 @@ class _TableSelectionWidgetState extends State<TableSelectionWidget> {
                               ),
                             const SizedBox(width: 4),
                             Text(
-                              [
-                                if (table.sourceTable.isNotEmpty)
-                                  table.sourceTable
-                                      .map((st) => st.secondaryTable.table_name)
-                                      .join(', '),
-                                if (table.joinedTable.isNotEmpty)
-                                  table.joinedTable
-                                      .map((jt) => jt.primaryJoin.table_name)
-                                      .join(', '),
-                              ].join('\n'),
+                              () {
+                                final sourceNames = table.sourceTable
+                                    .map((st) => st.secondaryTable.table_name)
+                                    .toSet();
+
+                                final joinedNames = table.joinedTable
+                                    .map((jt) => jt.primaryJoin.table_name)
+                                    .where(
+                                      (name) => !sourceNames.contains(name),
+                                    ) // avoid duplicates
+                                    .toSet();
+
+                                return [
+                                  if (sourceNames.isNotEmpty) sourceNames.join(', '),
+                                  if (joinedNames.isNotEmpty) joinedNames.join(', '),
+                                ].join('\n');
+                              }(),
                               style: AppTheme.of(context).subtitle2.override(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
