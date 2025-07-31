@@ -67,6 +67,7 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
   @override
   void dispose() {
     super.dispose();
+    socketService.removeTableOperationListeners();
   }
 
   void _handleLocationSelection() {
@@ -97,11 +98,11 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
           curve: Curves.easeInOut,
           margin: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.green : tableState.backgroundColor,
+            color: isSelected ? AppTheme.of(context).retroGreenYellow : tableState.backgroundColor,
             borderRadius: BorderRadius.circular(16),
-            border: isSelected
-                ? Border.all(color: AppTheme.of(context).primaryColor.withOpacity(0.8), width: 2)
-                : null,
+            // border: isSelected
+            //     ? Border.all(color: AppTheme.of(context).primaryColor.withOpacity(0.8), width: 2)
+            //     : null,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.1),
@@ -238,7 +239,7 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
     if (isCurrentTable) {
       return TableState(
         enabled: false,
-        backgroundColor: theme.primaryColor.withOpacity(0.2),
+        backgroundColor: theme.primaryColor.withAlpha(51),
         textColor: theme.primaryColor,
       );
     }
@@ -249,7 +250,7 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
       if (isAlreadyJoined) {
         return TableState(
           enabled: false,
-          backgroundColor: theme.retroRedYellow.withOpacity(0.2),
+          backgroundColor: theme.retroRedYellow.withAlpha(51),
           textColor: theme.retroRedYellow,
         );
       }
@@ -259,7 +260,7 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
     if (_selectedTables.contains(table.id)) {
       return TableState(
         enabled: true,
-        backgroundColor: theme.primaryColor.withOpacity(0.8),
+        backgroundColor: theme.primaryColor.withAlpha(204),
         textColor: Colors.white,
       );
     }
@@ -297,8 +298,8 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
     // Default available table
     return TableState(
       enabled: true,
-      backgroundColor: theme.retroLgBlackLgGrGr,
-      textColor: theme.retroLgBlackLgGrGrFont,
+      backgroundColor: theme.retroPinkBlueFont,
+      textColor: theme.retroOrangeBlackFont,
     );
   }
 
@@ -714,8 +715,8 @@ class _TableOptionsWidgetState extends State<TableOptionsWidget> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
       decoration: BoxDecoration(
-        color: theme.primaryColor.withOpacity(0.05),
-        border: Border(bottom: BorderSide(color: theme.primaryText.withOpacity(0.1), width: 1)),
+        color: theme.primaryColor.withAlpha(13),
+        border: Border(bottom: BorderSide(color: theme.primaryText.withAlpha(26), width: 1)),
       ),
       child: Row(
         children: [

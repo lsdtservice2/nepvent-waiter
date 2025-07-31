@@ -259,7 +259,7 @@ class _TableSelectionWidgetState extends State<TableSelectionWidget> {
                         constraints: const BoxConstraints(maxWidth: 120), // optionally limit width
                         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppTheme.of(context).retroRedYellowFont.withOpacity(0.2),
+                          color: AppTheme.of(context).retroRedYellowFont.withAlpha(51),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Wrap(

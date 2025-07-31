@@ -21,13 +21,15 @@ dependencies:
   qr_flutter: ^4.1.0
   simple_barcode_scanner: ^0.3.0
   web_socket_channel: ^3.0.3
-  flutter_local_notifications: ^19.3.1
+  flutter_local_notifications: ^19.4.0
   socket_io_client: ^3.1.2
   provider: ^6.1.5
   intl: ^0.20.2
   nepali_date_picker: ^7.0.0
   package_info_plus: ^8.3.0
   url_launcher: ^6.3.2
+  flutter_launcher_icons: ^0.14.4
+  sunmi_printer_plus: ^4.1.0
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +47,12 @@ flutter:
     - assets/sound/
     - assets/icon/
     - assets/PaymentMethodIcon/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/notification_Icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
 
   # Add custom fonts here if used
   # fonts:

@@ -113,7 +113,7 @@ class SocketService {
         iconColor: Colors.redAccent,
         buttonColor: Colors.redAccent,
         onPressed: () {
-          Navigator.of(navigatorKey.currentContext!).pop(); // Close the dialog
+          Navigator.of(navigatorKey.currentContext!).pop();
         },
       );
     });
@@ -162,6 +162,12 @@ class SocketService {
     socket.on(changeSuccess, (data) => _handleTableChange(data, context));
     socket.on(mergeSuccess, (data) => _handleTableMerge(data, context));
     socket.on(joinSuccess, (data) => _handleTableJoin(data, context));
+  }
+
+  void removeTableOperationListeners() {
+    socket.off(SocketService.changeSuccess);
+    socket.off(SocketService.mergeSuccess);
+    socket.off(SocketService.joinSuccess);
   }
 
   Future<void> _handleRefreshRequest(dynamic data) async {
@@ -286,6 +292,7 @@ class SocketService {
   }
 
   Future<void> _handleTableJoin(dynamic data, BuildContext context) async {
+    log("✅✅✅✅✅✅ ============ $data");
     await _joinDataStore(data);
 
     final joinedTables = data['message']['tablesToOccupy']

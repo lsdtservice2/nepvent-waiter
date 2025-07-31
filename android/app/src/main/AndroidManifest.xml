@@ -7,7 +7,7 @@
 
     <application
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:label="nepvent_waiter">
         <activity
             android:name=".MainActivity"

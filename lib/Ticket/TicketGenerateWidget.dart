@@ -173,6 +173,7 @@ class _TicketGenerateWidgetState extends State<TicketGenerateWidget> {
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: Duration(seconds: 1), // Show for 1 seconds
       ),
     );
   }

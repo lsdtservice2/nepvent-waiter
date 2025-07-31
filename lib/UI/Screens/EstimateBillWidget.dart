@@ -3,11 +3,13 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:nepvent_waiter/Controller/SocketService.dart';
 import 'package:nepvent_waiter/UI/Design/AppTheme.dart';
 import 'package:nepvent_waiter/UI/Design/CustomFloatingActionButton.dart';
 import 'package:nepvent_waiter/UI/Screens/PaymentQrGenerateWidget.dart';
 import 'package:nepvent_waiter/Utils/Constant.dart';
 import 'package:nepvent_waiter/Utils/Urls.dart';
+import 'package:provider/provider.dart';
 
 class EstimateBillWidget extends StatefulWidget {
   const EstimateBillWidget({
@@ -402,22 +404,6 @@ class _EstimateBillWidgetState extends State<EstimateBillWidget> {
     );
   }
 
-  // Future<void> _buildEmptyTableUI() {
-  //   items = [
-  //     Column(
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: [
-  //         Lottie.asset('assets/lottie_animations/estimate_error.json', width: 200, height: 200, fit: BoxFit.contain),
-  //         const SizedBox(height: 24),
-  //         Text('Empty Table', style: AppTheme.of(context).title2.copyWith(fontSize: 28, fontWeight: FontWeight.w600)),
-  //         const SizedBox(height: 8),
-  //         Text('No items ordered yet', style: AppTheme.of(context).bodyText1.copyWith(color: Colors.grey.shade600)),
-  //       ],
-  //     ),
-  //   ];
-  //   return Future.value();
-  // }
-
   TextStyle _itemTextStyle() {
     return AppTheme.of(
       context,
@@ -426,14 +412,12 @@ class _EstimateBillWidgetState extends State<EstimateBillWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // final dataProvider = Provider.of<DataProvider>(context).isData;
-
     return FutureBuilder(
       future: _estimate,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // return const LoadingPageWidget();
-          return Center(child: CircularProgressIndicator());
+          return Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
         return Scaffold(
@@ -463,12 +447,22 @@ class _EstimateBillWidgetState extends State<EstimateBillWidget> {
           body: Column(
             children: [
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(bottom: 100),
-                  child: Column(children: items),
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    items.clear();
+                    setState(() {
+                      _estimate = getEstimate(); // Refresh the data
+                    });
+                    await _estimate;
+                  },
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.only(bottom: 100),
+                    child: Column(children: items),
+                  ),
                 ),
               ),
-              if (!snapshot.hasError && printerIntegrated) _buildPrintButton(),
+              // if (!snapshot.hasError && printerIntegrated) _buildPrintButton(),
             ],
           ),
           floatingActionButton: const CustomFloatingActionButton(),
@@ -495,40 +489,40 @@ class _EstimateBillWidgetState extends State<EstimateBillWidget> {
     ];
   }
 
-  Widget _buildPrintButton() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF4B39EF),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          // onPressed: () => estimatePrint(estimateValue),
-          onPressed: () {},
-          child: Text(
-            'Print Estimate',
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _buildPrintButton() {
+  //   return Container(
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(0.1),
+  //           blurRadius: 8,
+  //           offset: const Offset(0, -4),
+  //         ),
+  //       ],
+  //     ),
+  //     child: SizedBox(
+  //       width: double.infinity,
+  //       child: ElevatedButton(
+  //         style: ElevatedButton.styleFrom(
+  //           backgroundColor: const Color(0xFF4B39EF),
+  //           padding: const EdgeInsets.symmetric(vertical: 16),
+  //           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  //         ),
+  //         // onPressed: () => estimatePrint(estimateValue),
+  //         onPressed: () {},
+  //         child: Text(
+  //           'Print Estimate',
+  //           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   void _requestInvoice() {
-    // socketService.requestInvoice(widget.tableLocation, widget.tableId);
+    context.read<SocketService>().requestInvoice(widget.tableLocation, widget.tableId);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Invoice requested for table ${widget.tableName}'),
@@ -540,17 +534,21 @@ class _EstimateBillWidgetState extends State<EstimateBillWidget> {
   void _showQRCode() {
     showModalBottomSheet(
       context: context,
-      builder: (context) => SizedBox(
-        height: 200,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.4,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, spreadRadius: 5),
+          ],
+        ),
         child: PaymentQrGenerateWidget(
           totalPayment: estimateValue['billInformation']['final_amount'],
         ),
       ),
     );
   }
-
-  // void _syncDataLater() {
-  //   Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
-  //   Provider.of<DataProvider>(navigatorKey.currentContext!, listen: false).isData = false;
-  // }
 }
